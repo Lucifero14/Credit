@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chess Bot Predictor</title>
+    <style>
+      /* Full page background styling */
+      body {
+        background: url("/static/chess.webp") no-repeat center center fixed;
+        background-size: cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      /* Compact form styling */
+      .form-container {
+        background: rgba(255, 255, 255, 0.7); /* Semi-transparent */
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 320px;
+        text-align: center;
+      }
+
+      h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: bold;
+        margin: 5px 0;
+      }
+
+      input {
+        width: 90%;
+        padding: 6px;
+        margin-bottom: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        width: 100%;
+        padding: 8px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      #prediction-result {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <h2>Chess Bot Prediction</h2>
+
+      <form id="prediction-form">
+        <label for="turns">Turns:</label>
+        <input
+          type="number"
+          id="turns"
+          name="turns"
+          required
+          min="1"
+          step="1"
+        />
+
+        <label for="white_rating">White Rating:</label>
+        <input
+          type="number"
+          id="white_rating"
+          name="white_rating"
+          required
+          min="100"
+          step="1"
+        />
+
+        <label for="black_rating">Black Rating:</label>
+        <input
+          type="number"
+          id="black_rating"
+          name="black_rating"
+          required
+          min="100"
+          step="1"
+        />
+
+        <label for="avg_move_time_white">Avg Move Time (White) (ms):</label>
+        <input
+          type="number"
+          id="avg_move_time_white"
+          name="avg_move_time_white"
+          required
+          min="1"
+          step="1"
+        />
+
+        <label for="avg_move_time_black">Avg Move Time (Black) (ms):</label>
+        <input
+          type="number"
+          id="avg_move_time_black"
+          name="avg_move_time_black"
+          required
+          min="1"
+          step="1"
+        />
+
+        <button type="submit">Predict</button>
+      </form>
+
+      <h3>Result:</h3>
+      <p id="prediction-result"></p>
+    </div>
+
+    <script>
+      document
+        .getElementById("prediction-form")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const data = {
+            turns: parseInt(document.getElementById("turns").value),
+            white_rating: parseInt(
+              document.getElementById("white_rating").value
+            ),
+            black_rating: parseInt(
+              document.getElementById("black_rating").value
+            ),
+            avg_move_time_white: parseInt(
+              document.getElementById("avg_move_time_white").value
+            ),
+            avg_move_time_black: parseInt(
+              document.getElementById("avg_move_time_black").value
+            ),
+          };
+
+          fetch("http://127.0.0.1:5000/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          })
+            .then((response) => response.json())
+            .then((result) => {
+              document.getElementById(
+                "prediction-result"
+              ).innerText = `White: ${result["White Player Prediction"]}, Black: ${result["Black Player Prediction"]}`;
+            })
+            .catch((error) => {
+              document.getElementById("prediction-result").innerText =
+                "Error: Failed to fetch prediction!";
+            });
+        });
+    </script>
+  </body>
+</html>
